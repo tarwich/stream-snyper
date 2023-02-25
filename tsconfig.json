@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+
+    "strictNullChecks": true,
+    "noImplicitAny": true
+  }
+}
