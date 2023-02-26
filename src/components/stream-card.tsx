@@ -27,8 +27,8 @@ export const StreamCard = (props: StreamCardProps) => {
       rounded="lg"
       overflow="hidden"
       shadow="lg"
+      size="sm"
       {...rest}
-      maxW="sm"
     >
       <CardHeader>
         <Stack direction="row" spacing="4">
@@ -55,6 +55,7 @@ export const StreamCard = (props: StreamCardProps) => {
       <Image
         src={`https://static-cdn.jtvnw.net/previews-ttv/live_user_${lowerName}-440x248.jpg`}
         objectFit="cover"
+        maxW="20rem"
       />
       <EditStreamModal
         isOpen={isEditing}

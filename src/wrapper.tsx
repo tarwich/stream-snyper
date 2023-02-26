@@ -11,6 +11,7 @@ import {
   useCurrentUser,
   UserProvider,
 } from './lib/use-current-user';
+import { createStreamsContext, StreamsProvider } from './lib/use-streams';
 import { defaultTheme } from './theme';
 
 const queryClient = new QueryClient({
@@ -41,6 +42,13 @@ export const Wrapper = () => {
     // CurrentUserProvider
     (props: PropsWithChildren) => (
       <UserProvider value={createUserContext()} children={props.children} />
+    ),
+    // StreamsProvider
+    (props: PropsWithChildren) => (
+      <StreamsProvider
+        value={createStreamsContext()}
+        children={props.children}
+      />
     ),
     // Router
     (props: PropsWithChildren) => {

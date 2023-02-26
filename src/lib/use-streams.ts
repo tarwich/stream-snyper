@@ -1,43 +1,46 @@
-import { useEffect } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import { useImmer } from 'use-immer';
+import { useUpdateUserMutation } from './gotrue.queries';
 import { useCurrentUser } from './use-current-user';
 
 export type Stream = {
   name: string;
 };
 
-export const useStreams = () => {
-  const { user } = useCurrentUser();
-  const [streams, setStreams] = useImmer([
-    { name: 'xQc' },
-    { name: 'summit1g' },
-    { name: 'sodapoppin' },
-    { name: 'amouranth' },
-    { name: 'justaminx' },
-    { name: 'lirik' },
-  ] as Stream[]);
+export const createStreamsContext = () => {
+  const { user, accessToken } = useCurrentUser();
+  const [streams, setStreams] = useImmer([] as Stream[]);
 
   const KEY = `streams-${user?.id ?? 'anonymous'}`;
 
-  const writeStreams = (streams: Stream[]) => {
-    localStorage.setItem(KEY, JSON.stringify(streams));
-  };
+  const updateUserMutation = useUpdateUserMutation(accessToken || '');
 
   useEffect(() => {
     if (!user) return;
 
-    const streams = JSON.parse(localStorage.getItem(KEY) ?? '[]');
+    const streams = user?.user_metadata?.streams ?? [];
 
     setStreams((draft) => {
       draft.splice(0, draft.length, ...streams);
     });
-  });
+  }, [KEY]);
+
+  const saveStreams = () => {
+    localStorage.setItem(KEY, JSON.stringify(streams));
+
+    updateUserMutation.mutate({
+      email: user?.email ?? '',
+      data: { streams },
+    });
+  };
+
+  useEffect(() => {
+    saveStreams();
+  }, [streams]);
 
   const addStream = (stream: Stream) => {
-    console.log(stream);
     setStreams((draft) => {
       draft.push(stream);
-      writeStreams(draft);
     });
   };
 
@@ -46,19 +49,32 @@ export const useStreams = () => {
       const index = draft.findIndex((s) => s.name === name);
       if (index === -1) return;
       draft.splice(index, 1);
-      writeStreams(draft);
     });
   };
 
   const updateStream = (name: string, stream: Stream) => {
-    console.log(name, stream);
     setStreams((draft) => {
       const index = draft.findIndex((s) => s.name === name);
       if (index === -1) return;
       draft[index] = stream;
-      writeStreams(draft);
     });
   };
 
-  return { streams, addStream, removeStream, updateStream };
+  return {
+    streams,
+    addStream,
+    removeStream,
+    updateStream,
+    isLoading: updateUserMutation.isLoading,
+  };
+};
+
+export type StreamsContext = ReturnType<typeof createStreamsContext>;
+
+export const StreamsContext = createContext<StreamsContext>({} as any);
+
+export const StreamsProvider = StreamsContext.Provider;
+
+export const useStreams = () => {
+  return useContext(StreamsContext);
 };

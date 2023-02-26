@@ -42,3 +42,25 @@ export const get = async <TSuccess = any, TFailure = any>(
     return Promise.reject(json as TFailure);
   }
 };
+
+export const put = async <TSuccess = any, TFailure = any>(
+  path: string,
+  body?: any,
+  options: {
+    headers?: Record<string, string>;
+  } = {},
+) => {
+  const response = await fetch(path, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+    headers: options.headers,
+  });
+
+  const json = await response.json();
+
+  if (response.ok) {
+    return json as TSuccess;
+  } else {
+    return Promise.reject(json as TFailure);
+  }
+};

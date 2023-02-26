@@ -6,32 +6,13 @@ import React from 'react';
 import { useStreams } from '../lib/use-streams';
 import { StreamCard } from './stream-card';
 
-const streams = [
-  {
-    name: 'xQc',
-  },
-  {
-    name: 'summit1g',
-  },
-  {
-    name: 'sodapoppin',
-  },
-  {
-    name: 'amouranth',
-  },
-  {
-    name: 'justaminx',
-  },
-  {
-    name: 'lirik',
-  },
-];
+const streams = [];
 
 export const Streams = () => {
   const { streams } = useStreams();
 
   return (
-    <Wrap>
+    <Wrap p="sm">
       {streams.map((stream) => (
         <StreamCard key={stream.name} {...stream} />
       ))}

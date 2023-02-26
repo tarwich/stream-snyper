@@ -2,7 +2,11 @@ import React, { useEffect } from 'react';
 import { useImmer } from 'use-immer';
 import { useGetUserQuery, useTokenMutation } from './gotrue.queries';
 
-export type User = { id: string; email: string };
+export type User = {
+  id: string;
+  email: string;
+  user_metadata?: any;
+};
 
 const REFRESH_TOKEN_KEY = 'token';
 
@@ -86,6 +90,7 @@ export const createUserContext = () => {
     user: state.user,
     setToken,
     clearTokens,
+    accessToken: state.accessToken,
   };
 };
 

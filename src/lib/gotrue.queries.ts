@@ -1,6 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { get, post } from './http';
+import { get, post, put } from './http';
 import { useConfig } from './use-config';
+
+// #region TokenMutation
 
 export type TokenMutationParameters =
   | {
@@ -43,6 +45,10 @@ export const useTokenMutation = () => {
   return mutation;
 };
 
+// #endregion TokenMutation
+
+// #region GetUserQuery
+
 export type GetUserResult = {
   id: string;
   email: string;
@@ -78,3 +84,39 @@ export const useGetUserQuery = (accessToken: string) => {
 
   return query;
 };
+
+// #endregion GetUserQuery
+
+// #region UpdateUserMutation
+
+export type UpdateUserMutationParameters = {
+  email: string;
+  password?: string;
+  data?: Record<string, any>;
+};
+
+export type UpdateUserMutationResult = GetUserResult;
+
+export const useUpdateUserMutation = (accessToken: string) => {
+  const { config } = useConfig();
+
+  const mutation = useMutation<
+    UpdateUserMutationResult,
+    string,
+    UpdateUserMutationParameters
+  >(['user', accessToken], async (parameters) => {
+    const result = await put(`${config.auth.endpoint}/user`, parameters, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }).catch((error) => {
+      return Promise.reject(error.msg || error.error || error);
+    });
+
+    return result;
+  });
+
+  return mutation;
+};
+
+// #endregion UpdateUserMutation
