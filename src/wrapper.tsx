@@ -2,7 +2,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { PropsWithChildren } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
-import { Application } from './application';
+import { Application } from './application.page';
 import { ConfirmSignupPage } from './confirm-signup.page';
 import { LandingPage } from './landing.page';
 import { ConfigProvider, createConfig } from './lib/use-config';

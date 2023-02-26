@@ -36,6 +36,7 @@ export const createUserContext = () => {
     setState((draft) => {
       draft.refreshToken = null;
       draft.accessToken = null;
+      draft.user = null;
     });
     localStorage.removeItem(REFRESH_TOKEN_KEY);
   };
