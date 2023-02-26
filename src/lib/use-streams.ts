@@ -35,8 +35,9 @@ export const createStreamsContext = () => {
   };
 
   useEffect(() => {
+    if (!accessToken || !user) return;
     saveStreams();
-  }, [streams]);
+  }, [streams, user, accessToken]);
 
   const addStream = (stream: Stream) => {
     setStreams((draft) => {

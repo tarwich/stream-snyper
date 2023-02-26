@@ -6,7 +6,6 @@ export const createConfig = () => {
     endpoint: import.meta.env.VITE_AUTH_ENDPOINT,
   };
 
-  console.log('createConfig', auth);
   const [config, updateConfig] = useImmer({ auth });
 
   return { config, setConfig: updateConfig };
