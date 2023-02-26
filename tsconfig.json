@@ -3,6 +3,9 @@
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
+    "module": "ES2022",
+    "target": "ES2022",
+    "moduleResolution": "node",
 
     "strictNullChecks": true,
     "noImplicitAny": true
