@@ -1,6 +1,14 @@
 import { DeepPartial, extendTheme, Theme } from '@chakra-ui/react';
 
 export const defaultTheme = extendTheme({
+  styles: {
+    global: {
+      'html, body, #root': {
+        height: 'full',
+      },
+    },
+  },
+
   colors: {
     brand: {
       100: '#a5c9e1',

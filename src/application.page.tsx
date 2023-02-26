@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   IconButton,
   Image,
@@ -14,15 +15,22 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 import { FaDoorOpen, FaPlusCircle } from 'react-icons/fa';
+import { EditStreamModal } from './components/edit-stream-modal';
 import { Gravatar } from './components/gravatar';
+import { Streams } from './components/streams';
 import { useCurrentUser } from './lib/use-current-user';
 import { HBox, VBox } from './ui/boxes';
 
 export const Application = () => {
   const { user, clearTokens } = useCurrentUser();
+  const [editingStream, setEditingStream] = React.useState(false);
+
+  const addStream = () => {
+    setEditingStream(true);
+  };
 
   return (
-    <VBox>
+    <VBox height="full">
       <HBox
         display="grid"
         gridTemplateColumns="auto 1fr auto"
@@ -35,7 +43,12 @@ export const Application = () => {
 
         <HBox gap="sm" placeItems="center end">
           {/* Button to add a stream */}
-          <Button colorScheme="brand" size="sm" leftIcon={<FaPlusCircle />}>
+          <Button
+            colorScheme="brand"
+            size="sm"
+            leftIcon={<FaPlusCircle />}
+            onClick={addStream}
+          >
             Add Stream
           </Button>
 
@@ -61,6 +74,16 @@ export const Application = () => {
           </Popover>
         </HBox>
       </HBox>
+
+      <Box h="full" overflowY="auto">
+        <Streams />
+      </Box>
+
+      <EditStreamModal
+        onClose={() => setEditingStream(false)}
+        isOpen={editingStream}
+        name={''}
+      />
     </VBox>
   );
 };
