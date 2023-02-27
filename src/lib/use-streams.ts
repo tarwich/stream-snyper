@@ -28,6 +28,9 @@ const serializeStreams = (streams: Stream[]) => {
 const deserializeStreams = (streams: any[] = []) => {
   return streams.map((s) => ({
     name: s.name,
+    lastUpdated: s.lastUpdated,
+    game: s.game,
+    live: s.live,
   }));
 };
 
@@ -131,7 +134,7 @@ export const createStreamsContext = () => {
 
   // Set a timer to wait one second, then find the oldest stream and update it.
   // After the update, set a new timer to wait one second, plus a random amount
-  // of time between 0 and 1 seconds. Then repeat.
+  // of time between 0 and 2 seconds. Then repeat.
   useEffect(() => {
     let running = true;
 
@@ -139,11 +142,10 @@ export const createStreamsContext = () => {
       if (!running) return;
       const stream = getStreamToUpdate(streams);
       if (stream) refreshStream(stream);
-      const delay = 1000 + Math.random() * 1000;
-      setTimeout(tick, delay);
+      setTimeout(tick, 1000 + Math.random() * 5000);
     };
 
-    setTimeout(tick, 1000);
+    setTimeout(tick, 1000 + Math.random() * 5000);
 
     return () => {
       running = false;
