@@ -1,10 +1,12 @@
 export const post = async <TSuccess = any, TFailure = any>(
   path: string,
   body?: any,
+  options: { headers?: Record<string, string> } = {},
 ) => {
   const response = await fetch(path, {
     method: 'POST',
     body: JSON.stringify(body),
+    headers: options.headers,
   });
 
   const json = await response.json();

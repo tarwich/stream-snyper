@@ -47,6 +47,7 @@ export const EditStreamModal = (props: EditStreamModalProps) => {
     } else {
       addStream(data);
     }
+
     props.onClose();
   });
 

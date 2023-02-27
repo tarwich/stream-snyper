@@ -3,12 +3,12 @@ import {
   Button,
   Card,
   CardBody,
-  CardProps,
   Center,
   Heading,
   Input,
   Stack,
   Text,
+  type CardProps,
 } from '@chakra-ui/react';
 import React, { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
@@ -30,7 +30,7 @@ export const Auth = (props: CardProps) => {
       <Center mb={4}>
         {mode === 'login' ? (
           <Text size="lg">
-            Don't have an account?{' '}
+            {`Don't have an account? `}
             <Button variant="link" onClick={switchMode}>
               Sign up
             </Button>
@@ -49,19 +49,19 @@ export const Auth = (props: CardProps) => {
 };
 
 const SignupForm = () => {
-  type SignupForm = {
+  interface SignupForm {
     email: string;
     password: string;
-  };
+  }
   const { register, handleSubmit } = useForm<SignupForm>();
   const signupMutation = useSignupMutation();
 
-  const onSubmit = async (data: SignupForm) => {
+  const onSubmit = handleSubmit(async (data: SignupForm) => {
     signupMutation.mutate(data);
-  };
+  });
 
   return (
-    <Stack gap="md" as="form" onSubmit={handleSubmit(onSubmit)} w="100%">
+    <Stack gap="md" as="form" onSubmit={onSubmit} w="100%">
       <Heading size="md">Sign up</Heading>
       <Input {...register('email')} placeholder="Email" />
       <Input {...register('password')} type="password" placeholder="Password" />
@@ -69,7 +69,7 @@ const SignupForm = () => {
         Sign up
       </Button>
       {signupMutation.isLoading && <Alert status="info">Loading...</Alert>}
-      {signupMutation.error && (
+      {signupMutation.error != null && (
         <Alert status="error">{signupMutation.error?.msg}</Alert>
       )}
     </Stack>

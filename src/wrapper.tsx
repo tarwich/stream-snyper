@@ -1,6 +1,6 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React, { PropsWithChildren } from 'react';
+import React, { type PropsWithChildren } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { Application } from './application.page';
 import { ConfirmSignupPage } from './confirm-signup.page';
@@ -27,28 +27,29 @@ export const Wrapper = () => {
   const PROVIDERS = [
     // ChakraProvider
     (props: PropsWithChildren) => (
-      <ChakraProvider theme={defaultTheme} children={props.children} />
+      <ChakraProvider theme={defaultTheme}>{props.children}</ChakraProvider>
     ),
     // BrowserRouter
-    (props: PropsWithChildren) => <BrowserRouter children={props.children} />,
+    BrowserRouter,
     // QueryClient
     (props: PropsWithChildren) => (
-      <QueryClientProvider client={queryClient} children={props.children} />
+      <QueryClientProvider client={queryClient}>
+        {props.children}
+      </QueryClientProvider>
     ),
     // ConfigProvider
     (props: PropsWithChildren) => (
-      <ConfigProvider value={createConfig()} children={props.children} />
+      <ConfigProvider value={createConfig()}>{props.children}</ConfigProvider>
     ),
     // CurrentUserProvider
     (props: PropsWithChildren) => (
-      <UserProvider value={createUserContext()} children={props.children} />
+      <UserProvider value={createUserContext()}>{props.children}</UserProvider>
     ),
     // StreamsProvider
     (props: PropsWithChildren) => (
-      <StreamsProvider
-        value={createStreamsContext()}
-        children={props.children}
-      />
+      <StreamsProvider value={createStreamsContext()}>
+        {props.children}
+      </StreamsProvider>
     ),
     // Router
     (props: PropsWithChildren) => {
@@ -56,15 +57,14 @@ export const Wrapper = () => {
       const { hash } = useLocation();
 
       // See if there is a #confirmation_token in the URL
-      const confirmationToken = new URLSearchParams(hash.slice(1)).get(
-        'confirmation_token',
-      );
+      const confirmationToken =
+        new URLSearchParams(hash.slice(1)).get('confirmation_token') ?? '';
 
       return (
         <Routes>
           {
             // If there is a confirmation token, show the confirmation page
-            confirmationToken && (
+            Boolean(confirmationToken) && (
               <Route
                 path="*"
                 element={
@@ -75,7 +75,7 @@ export const Wrapper = () => {
           }
           {
             // If there is a user, show the application
-            user && <Route path="/home/*" element={<Application />} />
+            user != null && <Route path="/home/*" element={<Application />} />
           }
           <Route path="*" element={<LandingPage />} />
         </Routes>

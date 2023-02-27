@@ -5,8 +5,11 @@ export const createConfig = () => {
   const auth = {
     endpoint: import.meta.env.VITE_AUTH_ENDPOINT,
   };
+  const api = {
+    endpoint: import.meta.env.VITE_FUNCTIONS_ENDPOINT,
+  };
 
-  const [config, updateConfig] = useImmer({ auth });
+  const [config, updateConfig] = useImmer({ auth, api });
 
   return { config, setConfig: updateConfig };
 };

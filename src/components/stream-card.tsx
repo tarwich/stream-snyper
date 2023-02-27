@@ -5,21 +5,25 @@ import {
   CardHeader,
   IconButton,
   Image,
-  Stack,
+  Text,
 } from '@chakra-ui/react';
 import React, { ComponentProps } from 'react';
-import { FaEdit } from 'react-icons/fa';
+import { FaCircle, FaEdit } from 'react-icons/fa';
+import { Stream } from '../lib/use-streams';
+import { HBox } from '../ui/boxes';
 import { EditStreamModal } from './edit-stream-modal';
 
 export type StreamCardProps = {
-  name: string;
+  stream: Stream;
 } & ComponentProps<typeof Card>;
 
 export const StreamCard = (props: StreamCardProps) => {
-  const { name, ...rest } = props;
+  const { stream, ...rest } = props;
   const [isEditing, setIsEditing] = React.useState(false);
 
-  const lowerName = name.toLowerCase();
+  const lowerName = stream.name.toLowerCase();
+
+  // const clientIdQuery = useClientIdQuery();
 
   return (
     <Card
@@ -28,19 +32,32 @@ export const StreamCard = (props: StreamCardProps) => {
       overflow="hidden"
       shadow="lg"
       size="sm"
+      maxW="20rem"
       {...rest}
     >
       <CardHeader>
-        <Stack direction="row" spacing="4">
+        <HBox
+          display="grid"
+          gridTemplateColumns="auto auto 1fr auto"
+          placeItems="center start"
+          gap="4"
+        >
+          <Box p="0" color={stream.live ? 'green.500' : 'red.500'}>
+            <FaCircle />
+          </Box>
+
           <Button
             variant="link"
             size="sm"
             as="a"
             href={`https://www.twitch.tv/${lowerName}`}
           >
-            {name}
+            {stream.name}
           </Button>
-          <Box flex="1" />
+
+          <Text noOfLines={1} fontSize="sm" color="gray.500">
+            {stream.game}
+          </Text>
 
           {/* Edit button */}
           <IconButton
@@ -50,7 +67,7 @@ export const StreamCard = (props: StreamCardProps) => {
             padding="0"
             onClick={() => setIsEditing(true)}
           />
-        </Stack>
+        </HBox>
       </CardHeader>
       <Image
         src={`https://static-cdn.jtvnw.net/previews-ttv/live_user_${lowerName}-440x248.jpg`}
@@ -60,7 +77,7 @@ export const StreamCard = (props: StreamCardProps) => {
       <EditStreamModal
         isOpen={isEditing}
         onClose={() => setIsEditing(false)}
-        name={name}
+        name={stream.name}
       />
     </Card>
   );
