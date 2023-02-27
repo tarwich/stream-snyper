@@ -72,6 +72,14 @@ const SignupForm = () => {
       {signupMutation.error != null && (
         <Alert status="error">{signupMutation.error?.msg}</Alert>
       )}
+      {signupMutation.isSuccess && (
+        <Alert status="success">
+          <AlertTitle>Signed Up</AlertTitle>
+          <AlertDescription>
+            Please check your email to confirm your account.
+          </AlertDescription>
+        </Alert>
+      )}
     </Stack>
   );
 };
