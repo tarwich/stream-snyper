@@ -33,6 +33,10 @@ exports.handler = async function (event, context, callback) {
   callback(null, {
     statusCode: 200,
     body: JSON.stringify({ clientId }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    },
   });
 };
 
