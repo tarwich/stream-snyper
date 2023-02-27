@@ -82,7 +82,7 @@ const LoginForm = () => {
     email: string;
     password: string;
   }>();
-
+  const navigate = useNavigate();
   const loginMutation = useTokenMutation();
 
   const onSubmit = handleSubmit((data) => {
@@ -98,6 +98,7 @@ const LoginForm = () => {
             refreshToken: data.refresh_token,
             accessToken: data.access_token,
           });
+          navigate('/home');
         },
       },
     );
