@@ -1,5 +1,7 @@
 import {
   Alert,
+  AlertDescription,
+  AlertTitle,
   Button,
   Card,
   CardBody,
@@ -12,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { useTokenMutation } from '../lib/gotrue.queries';
 import { useCurrentUser } from '../lib/use-current-user';
 import { useSignupMutation } from './auth.queries';

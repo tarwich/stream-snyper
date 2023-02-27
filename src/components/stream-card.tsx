@@ -7,7 +7,7 @@ import {
   Image,
   Text,
 } from '@chakra-ui/react';
-import React, { ComponentProps } from 'react';
+import React, { ComponentProps, useEffect } from 'react';
 import { FaCircle, FaEdit } from 'react-icons/fa';
 import { Stream } from '../lib/use-streams';
 import { HBox } from '../ui/boxes';
@@ -20,10 +20,17 @@ export type StreamCardProps = {
 export const StreamCard = (props: StreamCardProps) => {
   const { stream, ...rest } = props;
   const [isEditing, setIsEditing] = React.useState(false);
-
+  const imgRef = React.useRef<HTMLImageElement>(null);
   const lowerName = stream.name.toLowerCase();
 
-  // const clientIdQuery = useClientIdQuery();
+  useEffect(() => {
+    const image = imgRef.current;
+
+    // Refresh the image when the stream is updated
+    if (image) {
+      image.src = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${lowerName}-440x248.jpg`;
+    }
+  }, [lowerName, stream.lastUpdated]);
 
   return (
     <Card
@@ -73,6 +80,7 @@ export const StreamCard = (props: StreamCardProps) => {
         src={`https://static-cdn.jtvnw.net/previews-ttv/live_user_${lowerName}-440x248.jpg`}
         objectFit="cover"
         maxW="20rem"
+        ref={imgRef}
       />
       <EditStreamModal
         isOpen={isEditing}

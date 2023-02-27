@@ -110,26 +110,34 @@ export const createStreamsContext = () => {
     if (save) saveStreams(newStreams);
   };
 
-  const refreshStream = (stream: Stream) => {
-    getStreamInfo(stream.name)
-      .then((streamInfo) => {
-        console.log('refreshStream', stream.name, streamInfo);
+  const refreshStream = async (stream: Stream) => {
+    try {
+      const streamInfo = await getStreamInfo(stream.name);
+      console.log('refreshStream', stream.name, streamInfo);
 
-        const newStream = {
-          ...stream,
-          lastUpdated: Date.now(),
-          live: !!streamInfo?.data?.user?.stream,
-          game: streamInfo?.data?.user?.stream?.game?.name,
-        };
+      const live = !!streamInfo?.data?.user?.stream;
 
-        updateStream(stream.name, newStream, true);
-      })
-      .catch((err) => {
-        console.error('refreshStream error', err);
+      if (live) {
+        await fetch(
+          `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.name?.toLowerCase()}-440x248.jpg`,
+          { cache: 'reload' },
+        );
+      }
 
-        // Mark the stream as updated so we don't try to update it again
-        updateStream(stream.name, { ...stream, lastUpdated: Date.now() }, true);
-      });
+      const newStream = {
+        ...stream,
+        lastUpdated: Date.now(),
+        live: live,
+        game: streamInfo?.data?.user?.stream?.game?.name,
+      };
+
+      updateStream(stream.name, newStream, true);
+    } catch (err) {
+      console.error('refreshStream error', err);
+
+      // Mark the stream as updated so we don't try to update it again
+      updateStream(stream.name, { ...stream, lastUpdated: Date.now() }, true);
+    }
   };
 
   // Set a timer to wait one second, then find the oldest stream and update it.
