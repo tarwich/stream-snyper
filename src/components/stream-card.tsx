@@ -76,12 +76,18 @@ export const StreamCard = (props: StreamCardProps) => {
           />
         </HBox>
       </CardHeader>
-      <Image
-        src={`https://static-cdn.jtvnw.net/previews-ttv/live_user_${lowerName}-440x248.jpg`}
-        objectFit="cover"
-        maxW="20rem"
-        ref={imgRef}
-      />
+      {
+        // Only render the image if the stream is live
+        stream.live && (
+          <Image
+            src={`https://static-cdn.jtvnw.net/previews-ttv/live_user_${lowerName}-440x248.jpg`}
+            objectFit="cover"
+            width="20rem"
+            maxW="20rem"
+            ref={imgRef}
+          />
+        )
+      }
       <EditStreamModal
         isOpen={isEditing}
         onClose={() => setIsEditing(false)}
