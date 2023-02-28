@@ -60,6 +60,10 @@ export const createUserContext = () => {
             refreshToken: result.refresh_token,
             accessToken: result.access_token,
           });
+
+          // Set a timer to refresh the token when it's got 50% of its lifetime
+          // left
+          setTimeout(refreshAccessToken, result.expires_in * 0.5 * 1000);
         },
         onError: (error) => {
           setState((draft) => {
