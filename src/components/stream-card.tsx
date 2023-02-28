@@ -39,6 +39,7 @@ export const StreamCard = (props: StreamCardProps) => {
       overflow="hidden"
       shadow="lg"
       size="sm"
+      width="20rem"
       maxW="20rem"
       {...rest}
     >
@@ -82,7 +83,6 @@ export const StreamCard = (props: StreamCardProps) => {
           <Image
             src={`https://static-cdn.jtvnw.net/previews-ttv/live_user_${lowerName}-440x248.jpg`}
             objectFit="cover"
-            width="20rem"
             maxW="20rem"
             ref={imgRef}
           />
