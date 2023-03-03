@@ -1,7 +1,13 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { type PropsWithChildren } from 'react';
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { Application } from './application.page';
 import { ConfirmSignupPage } from './confirm-signup.page';
 import { LandingPage } from './landing.page';
@@ -55,6 +61,15 @@ export const Wrapper = () => {
     (props: PropsWithChildren) => {
       const { user } = useCurrentUser();
       const { hash } = useLocation();
+      const navigate = useNavigate();
+      /** Should redirect when user becomes valid */
+      const [shouldRedirect, setShouldRedirect] = React.useState(user === null);
+
+      React.useEffect(() => {
+        if (user != null && shouldRedirect) {
+          navigate('/home');
+        }
+      }, [user, shouldRedirect, navigate]);
 
       // See if there is a #confirmation_token in the URL
       const confirmationToken =

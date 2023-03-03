@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useImmer } from 'use-immer';
 import { useUpdateUserMutation } from './gotrue.queries';
 import { useConfig } from './use-config';
@@ -68,6 +68,7 @@ export const createStreamsContext = () => {
   const { user, accessToken } = useCurrentUser();
   const [streams, setStreams] = useImmer([] as Stream[]);
   const { getStreamInfo } = useTwitch();
+  const [initialMount, setInitialMount] = useState(true);
 
   const KEY = `streams-${user?.id ?? 'anonymous'}`;
 
@@ -81,9 +82,44 @@ export const createStreamsContext = () => {
     setStreams(streams);
   }, [user?.user_metadata?.streams]);
 
+  const refreshAllStreams = async (streamsToRefresh = streams) => {
+    const newStreams = await Promise.all(
+      streamsToRefresh.map(async (stream) => {
+        // Get the image from the Twitch CDN to force a cache refresh
+        try {
+          const result = await fetch(
+            `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.name?.toLowerCase()}-440x248.jpg`,
+            { cache: 'reload' },
+          );
+
+          // If the result url contains 404_preview, then the stream is offline
+          const live = !result.url.includes('404_preview');
+
+          return {
+            ...stream,
+            lastUpdated: Date.now(),
+            live: live,
+            game: live ? stream.game : 'Offline',
+          };
+        } catch (error) {
+          console.error(error);
+          return stream;
+        }
+      }),
+    );
+
+    setStreams(newStreams);
+  };
+
+  useEffect(() => {
+    if (initialMount && streams.length > 0) {
+      refreshAllStreams();
+      setInitialMount(false);
+    }
+  }, [initialMount, streams]);
+
   const saveStreams = (newStreams = streams) => {
     const serializedStreams = serializeStreams(newStreams);
-
     updateUserMutation.mutate({
       email: user?.email ?? '',
       data: { streams: serializedStreams },
@@ -110,33 +146,34 @@ export const createStreamsContext = () => {
     if (save) saveStreams(newStreams);
   };
 
-  const refreshStream = async (stream: Stream) => {
+  const refreshStream = async (stream: Stream, save = true) => {
     try {
-      const streamInfo = await getStreamInfo(stream.name);
+      console.log('refreshStream', stream.name);
+      // Fetch the image from the Twitch CDN to force a cache refresh
+      const result = await fetch(
+        `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.name?.toLowerCase()}-440x248.jpg`,
+        { cache: 'reload' },
+      );
+
+      // If the result url contains 404_preview, then the stream is offline
+      const live = !result.url.includes('404_preview');
+
+      const streamInfo = live ? await getStreamInfo(stream.name) : undefined;
       console.log('refreshStream', stream.name, streamInfo);
-
-      const live = !!streamInfo?.data?.user?.stream;
-
-      if (live) {
-        await fetch(
-          `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.name?.toLowerCase()}-440x248.jpg`,
-          { cache: 'reload' },
-        );
-      }
 
       const newStream = {
         ...stream,
         lastUpdated: Date.now(),
         live: live,
-        game: streamInfo?.data?.user?.stream?.game?.name,
+        game: live ? streamInfo?.data?.user?.stream?.game?.name : 'Offline',
       };
 
-      updateStream(stream.name, newStream, true);
+      updateStream(stream.name, newStream, save);
     } catch (err) {
       console.error('refreshStream error', err);
 
       // Mark the stream as updated so we don't try to update it again
-      updateStream(stream.name, { ...stream, lastUpdated: Date.now() }, true);
+      updateStream(stream.name, { ...stream, lastUpdated: Date.now() }, save);
     }
   };
 
