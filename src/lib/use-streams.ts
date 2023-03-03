@@ -97,7 +97,8 @@ export const createStreamsContext = () => {
 
           return {
             ...stream,
-            lastUpdated: Date.now(),
+            // If the stream is live, queue a faster refresh
+            lastUpdated: live ? 0 : Date.now(),
             live: live,
             game: live ? stream.game : 'Offline',
           };
@@ -127,7 +128,7 @@ export const createStreamsContext = () => {
   };
 
   const addStream = (stream: Stream) => {
-    const newStreams = [...streams, stream];
+    const newStreams = [...streams, { ...stream, lastUpdated: 0 }];
     setStreams(newStreams);
     saveStreams(newStreams);
   };
