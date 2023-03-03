@@ -39,7 +39,9 @@ export const StreamCard = (props: StreamCardProps) => {
       overflow="hidden"
       shadow="lg"
       size="sm"
-      width="20rem"
+      // width="20rem"
+      width="auto"
+      height="min-content"
       maxW="20rem"
       {...rest}
     >
