@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useImmer } from 'use-immer';
 import { useGetUserQuery, useTokenMutation } from './gotrue.queries';
 
@@ -15,10 +15,12 @@ export const createUserContext = () => {
     refreshToken: string | null;
     accessToken: string | null;
     user: User | null;
+    timer: number | null;
   }>({
     refreshToken: localStorage.getItem(REFRESH_TOKEN_KEY),
     accessToken: null,
     user: null,
+    timer: null,
   });
   const tokenMutation = useTokenMutation();
 
@@ -33,8 +35,40 @@ export const createUserContext = () => {
         localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
       }
       if (tokens.accessToken) draft.accessToken = tokens.accessToken;
+
+      // If the access token changes, parse the JWT and get the expiration
+      // time, then set a timer to refresh the token when it's got 50% of its
+      // lifetime left
+      if (tokens.accessToken && draft.refreshToken) {
+        const [, payload] = tokens.accessToken.split('.');
+        const decoded = JSON.parse(atob(payload));
+        const expiresAt = decoded.exp * 1000;
+        const expiresIn = expiresAt - Date.now();
+        const refreshAt = expiresIn / 2;
+
+        // Clear the previous timeout
+        if (draft.timer) clearTimeout(draft.timer);
+        const refreshToken = draft.refreshToken;
+
+        const timeout = window.setTimeout(async () => {
+          const result = await tokenMutation.mutateAsync({
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken,
+          });
+          setToken({
+            refreshToken: result.refresh_token,
+            accessToken: result.access_token,
+          });
+        }, refreshAt);
+        draft.timer = timeout;
+      }
     });
   };
+
+  // Log the refresh token every time it changes
+  useEffect(() => {
+    console.log('Refresh token:', state.refreshToken);
+  }, [state.refreshToken]);
 
   const clearTokens = () => {
     setState((draft) => {
@@ -45,7 +79,7 @@ export const createUserContext = () => {
     localStorage.removeItem(REFRESH_TOKEN_KEY);
   };
 
-  const refreshAccessToken = async () => {
+  const refreshAccessToken = useCallback(async () => {
     if (!state.refreshToken) return;
     if (state.accessToken) return;
 
@@ -60,10 +94,6 @@ export const createUserContext = () => {
             refreshToken: result.refresh_token,
             accessToken: result.access_token,
           });
-
-          // Set a timer to refresh the token when it's got 50% of its lifetime
-          // left
-          setTimeout(refreshAccessToken, result.expires_in * 0.5 * 1000);
         },
         onError: (error) => {
           setState((draft) => {
@@ -73,7 +103,7 @@ export const createUserContext = () => {
         },
       },
     );
-  };
+  }, [state.refreshToken, state.accessToken]);
 
   // When the refresh token changes, get a new access token
   useEffect(() => void refreshAccessToken(), [state.refreshToken]);
